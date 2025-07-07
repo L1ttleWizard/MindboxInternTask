@@ -41,7 +41,7 @@ jobs:
 
       # 3. Устанавливаем зависимости (используем 'ci' для скорости и надежности)
       - name: Install dependencies
-        run: npm ci
+        run: npm i
 
       # 4. Собираем проект
       - name: Build
