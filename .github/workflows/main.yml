@@ -40,9 +40,13 @@ jobs:
           node-version: 20 # Укажите вашу версию Node.js
 
       # 3. Устанавливаем зависимости (используем 'ci' для скорости и надежности)
-      - name: Install dependencies
-        run: npm i
+      - name: clean cache
+        run: npm cache clean --force
 
+      - name: install deps
+        run: npm ci
+        
+        
       # 4. Собираем проект
       - name: Build
         run: npm run build
