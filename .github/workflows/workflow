@@ -1,0 +1,63 @@
+# Название вашего workflow
+name: Deploy React App to GitHub Pages
+
+# Условия запуска:
+on:
+  # Запускать при пуше в ветку 'main'
+  push:
+    branches:
+      - main
+  # Позволяет запускать этот workflow вручную со страницы Actions
+  workflow_dispatch:
+
+# Настройка прав доступа для токена GitHub
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Отмена предыдущих запусков этого workflow, если пришел новый коммит
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+# Задачи, которые будут выполняться
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest # Использовать последнюю версию Ubuntu
+    steps:
+      # 1. Получаем код из репозитория
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Настраиваем Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20 # Укажите вашу версию Node.js
+
+      # 3. Устанавливаем зависимости (используем 'ci' для скорости и надежности)
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Собираем проект
+      - name: Build
+        run: npm run build
+
+      # 5. Настраиваем GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # 6. Загружаем артефакт сборки (папку 'dist')
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist' # Vite по умолчанию собирает все в папку 'dist'
+
+      # 7. Деплоим на GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
